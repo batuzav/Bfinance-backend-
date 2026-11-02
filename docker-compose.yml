@@ -1,0 +1,24 @@
+# Local Postgres for development and tests. Origin: blueprint §19.6.
+# Start/stop with `pnpm db:up` / `pnpm db:down` (scripts/db.sh). Host port 5433 so it never
+# collides with a Postgres already listening on 5432. Databases: libromayor (dev, created by
+# POSTGRES_DB) and libromayor_test (e2e, created by scripts/db.sh up).
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: libromayor-db
+    environment:
+      POSTGRES_USER: libromayor
+      POSTGRES_PASSWORD: libromayor
+      POSTGRES_DB: libromayor
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U libromayor -d libromayor"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  pgdata:

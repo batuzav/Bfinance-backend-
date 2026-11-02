@@ -1,0 +1,138 @@
+{
+  "version": 1,
+  "weekday_convention": "0=domingo 1=lunes 2=martes 3=miercoles 4=jueves 5=viernes 6=sabado",
+  "deterministic_id": [
+    {
+      "rule_id": "00000000-0000-4000-8000-000000000001",
+      "occurrence_on": "2026-11-02",
+      "id": "debb8458-6bae-5ba1-a9d6-69f932804f8b"
+    }
+  ],
+  "occurrences": [
+    {
+      "name": "monthly day 31 clamps to the last day of shorter months",
+      "rule": { "frequency": "monthly", "day_of_month": 31, "month_of_year": null, "weekday": null, "start_on": "2026-01-01", "end_on": null },
+      "after": "2026-01-01",
+      "until": "2026-05-31",
+      "expected": ["2026-01-31", "2026-02-28", "2026-03-31", "2026-04-30", "2026-05-31"]
+    },
+    {
+      "name": "semimonthly is day 15 and the last day of the month",
+      "rule": { "frequency": "semimonthly", "day_of_month": null, "month_of_year": null, "weekday": null, "start_on": "2026-02-01", "end_on": null },
+      "after": "2026-01-31",
+      "until": "2026-03-31",
+      "expected": ["2026-02-15", "2026-02-28", "2026-03-15", "2026-03-31"]
+    },
+    {
+      "name": "semimonthly in a leap February ends on the 29th",
+      "rule": { "frequency": "semimonthly", "day_of_month": null, "month_of_year": null, "weekday": null, "start_on": "2028-01-01", "end_on": null },
+      "after": "2028-02-01",
+      "until": "2028-02-29",
+      "expected": ["2028-02-15", "2028-02-29"]
+    },
+    {
+      "name": "weekly on monday",
+      "rule": { "frequency": "weekly", "day_of_month": null, "month_of_year": null, "weekday": 1, "start_on": "2026-11-01", "end_on": null },
+      "after": "2026-10-31",
+      "until": "2026-11-30",
+      "expected": ["2026-11-02", "2026-11-09", "2026-11-16", "2026-11-23", "2026-11-30"]
+    },
+    {
+      "name": "yearly feb 29 becomes feb 28 in non-leap years",
+      "rule": { "frequency": "yearly", "day_of_month": 29, "month_of_year": 2, "weekday": null, "start_on": "2024-02-29", "end_on": null },
+      "after": "2025-01-01",
+      "until": "2028-12-31",
+      "expected": ["2025-02-28", "2026-02-28", "2027-02-28", "2028-02-29"]
+    },
+    {
+      "name": "end_on cuts the series",
+      "rule": { "frequency": "monthly", "day_of_month": 12, "month_of_year": null, "weekday": null, "start_on": "2026-09-12", "end_on": "2026-11-10" },
+      "after": "2026-09-01",
+      "until": "2026-12-31",
+      "expected": ["2026-09-12", "2026-10-12"]
+    },
+    {
+      "name": "start_on excludes earlier dates",
+      "rule": { "frequency": "monthly", "day_of_month": 2, "month_of_year": null, "weekday": null, "start_on": "2026-11-02", "end_on": null },
+      "after": "2026-10-31",
+      "until": "2027-01-31",
+      "expected": ["2026-11-02", "2026-12-02", "2027-01-02"]
+    }
+  ],
+  "horizon": [
+    { "today": "2026-10-31", "horizon_end": "2026-11-15", "days_left": 15 },
+    { "today": "2026-11-14", "horizon_end": "2026-11-15", "days_left": 1 },
+    { "today": "2026-11-15", "horizon_end": "2026-11-30", "days_left": 15 },
+    { "today": "2026-02-27", "horizon_end": "2026-02-28", "days_left": 1 },
+    { "today": "2028-02-28", "horizon_end": "2028-02-29", "days_left": 1 },
+    { "today": "2026-12-31", "horizon_end": "2027-01-15", "days_left": 15 }
+  ],
+  "materialize": [
+    {
+      "name": "first run from start_on, one skipped occurrence",
+      "rule": { "id": "00000000-0000-4000-8000-000000000001", "frequency": "monthly", "day_of_month": 2, "month_of_year": null, "weekday": null, "start_on": "2026-09-02", "end_on": null, "max_count": null, "status": "active", "last_materialized_on": null },
+      "skips": ["2026-10-02"],
+      "materialized_count": 0,
+      "today": "2026-11-02",
+      "expected_occurrences": ["2026-09-02", "2026-11-02"],
+      "expected_status": "active",
+      "expected_last_materialized_on": "2026-11-02",
+      "expected_ids": { "2026-11-02": "debb8458-6bae-5ba1-a9d6-69f932804f8b" }
+    },
+    {
+      "name": "max_count stops the series and ends the rule",
+      "rule": { "id": "00000000-0000-4000-8000-000000000002", "frequency": "weekly", "day_of_month": null, "month_of_year": null, "weekday": 5, "start_on": "2026-10-02", "end_on": null, "max_count": 3, "status": "active", "last_materialized_on": null },
+      "skips": [],
+      "materialized_count": 0,
+      "today": "2026-10-31",
+      "expected_occurrences": ["2026-10-02", "2026-10-09", "2026-10-16"],
+      "expected_status": "ended",
+      "expected_last_materialized_on": "2026-10-31",
+      "expected_ids": {}
+    },
+    {
+      "name": "paused rules generate nothing and keep their state",
+      "rule": { "id": "00000000-0000-4000-8000-000000000003", "frequency": "monthly", "day_of_month": 10, "month_of_year": null, "weekday": null, "start_on": "2026-01-10", "end_on": null, "max_count": null, "status": "paused", "last_materialized_on": null },
+      "skips": [],
+      "materialized_count": 0,
+      "today": "2026-10-31",
+      "expected_occurrences": [],
+      "expected_status": "paused",
+      "expected_last_materialized_on": null,
+      "expected_ids": {}
+    },
+    {
+      "name": "already materialized today generates nothing",
+      "rule": { "id": "00000000-0000-4000-8000-000000000004", "frequency": "monthly", "day_of_month": 31, "month_of_year": null, "weekday": null, "start_on": "2026-01-31", "end_on": null, "max_count": null, "status": "active", "last_materialized_on": "2026-10-31" },
+      "skips": [],
+      "materialized_count": 10,
+      "today": "2026-10-31",
+      "expected_occurrences": [],
+      "expected_status": "active",
+      "expected_last_materialized_on": "2026-10-31",
+      "expected_ids": {}
+    },
+    {
+      "name": "end_on in the past ends the rule after its last occurrence",
+      "rule": { "id": "00000000-0000-4000-8000-000000000005", "frequency": "monthly", "day_of_month": 12, "month_of_year": null, "weekday": null, "start_on": "2026-09-12", "end_on": "2026-10-15", "max_count": null, "status": "active", "last_materialized_on": "2026-09-30" },
+      "skips": [],
+      "materialized_count": 1,
+      "today": "2026-10-31",
+      "expected_occurrences": ["2026-10-12"],
+      "expected_status": "ended",
+      "expected_last_materialized_on": "2026-10-31",
+      "expected_ids": {}
+    },
+    {
+      "name": "semimonthly first run",
+      "rule": { "id": "00000000-0000-4000-8000-000000000006", "frequency": "semimonthly", "day_of_month": null, "month_of_year": null, "weekday": null, "start_on": "2026-10-01", "end_on": null, "max_count": null, "status": "active", "last_materialized_on": null },
+      "skips": [],
+      "materialized_count": 0,
+      "today": "2026-10-31",
+      "expected_occurrences": ["2026-10-15", "2026-10-31"],
+      "expected_status": "active",
+      "expected_last_materialized_on": "2026-10-31",
+      "expected_ids": {}
+    }
+  ]
+}

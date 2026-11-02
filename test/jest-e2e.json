@@ -1,0 +1,15 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": ".",
+  "roots": ["<rootDir>"],
+  "testPathIgnorePatterns": ["/node_modules/", "<rootDir>/../../blueprints/"],
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "setupFiles": ["<rootDir>/setup/load-env.ts"],
+  "globalSetup": "<rootDir>/setup/global-setup.ts",
+  "maxWorkers": 1,
+  "testTimeout": 30000
+}
